@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kanban Desk - test task for Congnizant by Ildar Anikin">
+    <meta name="keywords" content="Kanban, Desk, Task, Management">
+    <meta name="author" content="Ildar Anikin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Desk</title>
+    <style>
+        /* Google fonts */
+        @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&display=swap");
+
+        /* START - COMMON STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            transition: .2s ease-in-out;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: "Open Sans", sans-serif;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        div,
+        p,
+        span,
+        h1,
+        h2,
+        a,
+        button,
+        textarea {
+            letter-spacing: 0.5px;
+        }
+
+        /* Width */
+        ::-webkit-scrollbar {
+            height: 5px;
+            width: 5px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #7a7a7a;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #353535;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #000000;
+        }
+
+        /* END - COMMON STYLES */
+
+        /* START - BOARD */
+        .board {
+            padding: 25px 0;
+            height: calc(100vh - 50px);
+            width: 100vw;
+            background-color: #6a93cb;
+            background: url("https://images.wallpaperscraft.com/image/single/hill_fog_forest_168431_1920x1080.jpg") no-repeat center;
+            background-size: cover;
+        }
+
+        .cards-wrap {
+            display: flex;
+            justify-content: flex-start;
+            align-items: initial;
+            overflow-x: auto;
+            padding: 0 25px 0 25px;
+        }
+
+        /* END - BOARD */
+
+        /* START - CARD AND ITS HEADER */
+        .card {
+            animation: .2s cardAppear ease-in-out forwards;
+            padding: 10px;
+            min-width: 260px;
+            width: 260px;
+            height: min-content;
+            border-radius: 5px;
+            background: #00000057;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 3px 10px #00000054;
+            margin-right: 10px;
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .card-header-title {
+            padding: 4px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            max-width: 212px;
+            width: 100%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            margin-right: 10px;
+        }
+
+        .card-header-title:focus {
+            outline: 1px solid #fff;
+            border: 0;
+            border-radius: 3px;
+        }
+
+        /* END - CARD AND ITS HEADER */
+
+        /* START - DELETE BUTTONS */
+        .delete-card-btn,
+        .delete-task-btn {
+            padding: 5px 5px;
+            border: 0;
+            border-radius: 5px;
+            font-size: 12px;
+            /* fast fix not to connect extra icons or font-awesome */
+            transform: scaleY(0.75);
+            cursor: pointer;
+            outline: none;
+            background: #ff0800;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        /* END - DELETE BUTTONS */
+
+        /* START - CARD LIST */
+        .card-list {
+            padding: 10px 0;
+            min-height: 30px;
+            max-height: calc(100vh - 290px);
+            overflow-y: auto;
+        }
+
+        .card-list-item {
+            animation: .2s cardAppear ease-in-out forwards;
+            padding: 8px 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background: #00000054;
+            color: #ffffff;
+            font-weight: 400;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: grab;
+        }
+
+        .card-list-item-text {
+            padding: 4px;
+        }
+
+        .card-list-item-text:focus {
+            outline: 1px solid #fff;
+            border: 0;
+            border-radius: 3px;
+        }
+
+        .card-list-item:first-child {
+            margin-top: 0;
+        }
+
+        /* END - CARD LIST */
+
+        /* START - CARD FORM */
+        .card-form {
+            display: none;
+        }
+
+        .card-form-textarea {
+            background: #5555555d;
+            color: #ffffff;
+            width: calc(100% - 20px);
+            resize: none;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .card-form-textarea::placeholder {
+            color: #bdbdbd;
+        }
+
+        .card-form-btns {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 0 10px 0;
+        }
+
+        .add-task-btn,
+        .cancel-task-btn,
+        .create-task-btn,
+        .add-column-btn {
+            padding: 10px;
+            border-radius: 5px;
+            outline: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 400;
+            color: #ffffff;
+            border: 0;
+        }
+
+        .create-task-btn {
+            background: #555555;
+        }
+
+        .add-task-btn {
+            background: #8db600;
+            display: none;
+        }
+
+        .add-column-btn {
+            background: #8db600;
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+        }
+
+        .cancel-task-btn {
+            background: #555555;
+            margin-left: 5px;
+        }
+
+        /* END - CARD FORM */
+
+        /* START - MEDIA */
+        @media (max-width: 991px) {
+            .board {
+                padding: 10px 0;
+                height: calc(100vh - 21px);
+            }
+
+            .cards-wrap {
+                padding: 0 10px 0 10px;
+            }
+        }
+
+        /* END - MEDIA */
+
+        /* START - ANIMATIONS */
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.4);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .deletedTask {
+            animation: taskDelete .2s ease-in-out forwards;
+        }
+
+        @keyframes taskDelete {
+            0% {
+                height: 100%;
+                opacity: 1;
+            }
+
+            100% {
+                height: 0;
+                opacity: 0;
+            }
+        }
+
+        /* END - ANIMATIONS */
+    </style>
+</head>
+
+<body>
+    <div class="board">
+        <div class="cards-wrap">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-header-title" contenteditable="true">Type name</span>
+                </div>
+                <div class="card-list">
+                    <div class="card-list-item" draggable="true">
+                        <span class="card-list-item-text" contenteditable="true">Type name</span>
+                        <button class="delete-task-btn">X</button>
+                    </div>
+                </div>
+                <div class="card-form">
+                    <textarea class="card-form-textarea" placeholder="Enter your task"></textarea>
+                    <div class="card-form-btns">
+                        <div class="add-task-btn">Add task</div>
+                        <div class="cancel-task-btn">Cancel</div>
+                    </div>
+                </div>
+                <div class="create-task-btn">Create task</div>
+            </div>
+        </div>
+        <button class="add-column-btn">Add column +++</button>
+    </div>
+
+    <script>
+        // Function to create and operate a new task
+        function createTask() {
+            const createTaskBtn = document.querySelector('.create-task-btn'),
+                addTaskBtn = document.querySelector('.add-task-btn'),
+                cancelTaskBtn = document.querySelector('.cancel-task-btn'),
+                cardForm = document.querySelector('.card-form'),
+                cardTextarea = document.querySelector('.card-form-textarea'),
+                taskLists = document.querySelectorAll('.card-list');
+
+            let cardFormValue;
+
+            createTaskBtn.addEventListener('click', () => {
+                createTaskBtn.style.display = 'none'; // Hide initial button
+                cardForm.style.display = 'block'; // Chow form
+                cardTextarea.focus(); // Cocusing on the text area
+            });
+
+            cancelTaskBtn.addEventListener('click', () => clearTaskState()); // Clear state
+
+            // Textarea operations
+            cardTextarea.addEventListener('input', (e) => {
+                cardFormValue = e.target.value;
+                if (cardFormValue != "" && cardFormValue.length >= 1) {
+                    addTaskBtn.style.display = 'block';
+                } else {
+                    addTaskBtn.style.display = 'none';
+                }
+            });
+
+            // Create DOM element and push into the list
+            function pushTask() {
+                const task = document.createElement('div');
+                const taskText = document.createElement('span');
+                const deleteBtn = document.createElement('button');
+
+                task.classList.add('card-list-item');
+                task.draggable = true;
+
+                taskText.classList.add('card-list-item-text');
+                taskText.innerText = cardFormValue;
+                taskText.contentEditable = true;
+
+                deleteBtn.classList.add('delete-task-btn');
+                deleteBtn.innerText = "X";
+
+                task.appendChild(taskText);
+                task.appendChild(deleteBtn);
+
+                taskLists[0].appendChild(task);
+
+                clearTaskState();
+                dragAndDrop();
+                deleteCard();
+                setTitle();
+            }
+
+            // Push DOM elem via pressing the button
+            addTaskBtn.addEventListener('click', () => {
+                pushTask();
+            });
+
+            // Push DOM elem via pressing the Enter key
+            document.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    pushTask();
+                }
+            })
+        }
+        createTask();
+
+        // Reuseful fucntion to clear task state (values, visibility)
+        function clearTaskState() {
+            const createTaskBtn = document.querySelector('.create-task-btn'),
+                cardForm = document.querySelector('.card-form'),
+                cardTextarea = document.querySelector('.card-form-textarea');
+
+            cardTextarea.value = "";
+            cardFormValue = "";
+            createTaskBtn.style.display = 'block';
+            cardForm.style.display = 'none';
+        }
+
+        // Reuseful fucntion to clear titles state
+        function setTitle() {
+            const cardTitles = document.querySelectorAll('.card-header-title');
+
+            cardTitles.forEach(title => {
+                let prevValue;
+
+                title.addEventListener('click', (e) => {
+                    prevValue = e.target.innerText;
+                    e.target.innerText = "";
+                });
+
+                title.addEventListener('blur', (e) => {
+                    if (e.target.innerText != "") {
+                        prevValue = "";
+                    } else {
+                        e.target.innerText = prevValue;
+                    }
+                });
+            })
+        }
+        setTitle();
+
+        // Function to add new card while click on "add column" button
+        function addCard() {
+            const addCardBtn = document.querySelector('.add-column-btn');
+
+            addCardBtn.addEventListener('click', () => {
+                const cardWrap = document.querySelector('.cards-wrap'),
+                    card = document.createElement('div');
+
+                card.classList.add('card');
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-header-title" contenteditable="true">Type name</span>
+                        <button class="delete-card-btn">
+                            X
+                        </button>
+                    </div>
+                    <div class="card-list">
+                    </div>
+                `;
+
+                cardWrap.appendChild(card);
+                setTitle();
+                dragAndDrop();
+                deleteCard();
+            })
+        }
+        addCard();
+
+        // Drag & Drop functionality
+        let draggingTask;
+
+        function dragAndDrop() {
+            const taskLists = document.querySelectorAll('.card-list'), //lists
+                taskListItems = document.querySelectorAll('.card-list-item'), //items inside lists
+                deleteTaskBtns = document.querySelectorAll('.delete-task-btn'); //buttons to delete tasks
+
+            taskListItems.forEach((item, idx1) => {
+                deleteTaskBtns[idx1].addEventListener('click', () => {
+                    item.classList.add('deletedTask');
+                    setTimeout(() => {
+                        item.remove();
+                    }, 200);
+                });
+
+                item.addEventListener('dragstart', () => {
+                    setTimeout(() => {
+                        //blur element
+                        item.style.filter = 'blur(1px)';
+                        item.style.opacity = '0.5';
+                    }, 1);
+                    draggingTask = item;
+                });
+
+                item.addEventListener('dragend', () => {
+                    setTimeout(() => {
+                        // Remove blur on the element
+                        item.style.filter = 'blur(0)';
+                        item.style.opacity = '1';
+                    }, 1);
+                    draggingTask = null;
+                });
+
+                taskLists.forEach((list) => {
+                    list.addEventListener('dragenter', function (e) {
+                        e.preventDefault();
+                        // Blur element
+                        this.style.background = "#00000054";
+                        this.style.filter = 'blur(1px)';
+                        this.style.opacity = '0.5';
+                    });
+                    list.addEventListener('dragover', e => {
+                        e.preventDefault();
+                    });
+                    list.addEventListener('dragleave', function (e) {
+                        e.preventDefault();
+                        // Remove blur on the element
+                        this.style.background = "transparent";
+                        this.style.filter = 'blur(0)';
+                        this.style.opacity = '1';
+
+                    });
+                    list.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        // Remove blur on the element
+                        this.style.background = "transparent";
+                        this.style.filter = 'blur(0)';
+                        this.style.opacity = '1';
+                        this.appendChild(draggingTask);
+                    })
+                })
+
+            })
+        }
+
+        dragAndDrop();
+
+        // Delete card function
+        function deleteCard() {
+            const cards = document.querySelectorAll('.card'),
+                deleteCardBtn = document.querySelectorAll('.delete-card-btn');
+
+            cards.forEach((card, idx, arr) => {
+                deleteCardBtn[idx].addEventListener('click', () => {
+                    arr[idx + 1].classList.add('deletedTask');
+                    setTimeout(() => {
+                        arr[idx + 1].remove();
+                    }, 200);
+                })
+            });
+        }
+    </script>
+</body>
+
+</html>
