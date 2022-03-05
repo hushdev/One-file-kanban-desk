@@ -368,12 +368,14 @@
                 task.appendChild(taskText);
                 task.appendChild(deleteBtn);
 
-                taskLists[0].appendChild(task);
-
-                clearTaskState();
-                dragAndDrop();
-                deleteCard();
-                setTitle();
+                if (cardFormValue != "" && cardFormValue.length > 1) {
+                    taskLists[0].appendChild(task);
+                    cardFormValue = "";
+                    clearTaskState();
+                    dragAndDrop();
+                    deleteCard();
+                    setTitle();
+                }
             }
 
             // Push DOM elem via pressing the button
